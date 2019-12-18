@@ -1,4 +1,4 @@
-Magikarpeggio
+Magikarp
 ====
 
 🎼🐠

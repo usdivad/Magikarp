@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-MagikarpeggioAudioProcessor::MagikarpeggioAudioProcessor()
+MagikarpAudioProcessor::MagikarpAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
      : AudioProcessor (BusesProperties()
                      #if ! JucePlugin_IsMidiEffect
@@ -26,17 +26,17 @@ MagikarpeggioAudioProcessor::MagikarpeggioAudioProcessor()
 {
 }
 
-MagikarpeggioAudioProcessor::~MagikarpeggioAudioProcessor()
+MagikarpAudioProcessor::~MagikarpAudioProcessor()
 {
 }
 
 //==============================================================================
-const String MagikarpeggioAudioProcessor::getName() const
+const String MagikarpAudioProcessor::getName() const
 {
     return JucePlugin_Name;
 }
 
-bool MagikarpeggioAudioProcessor::acceptsMidi() const
+bool MagikarpAudioProcessor::acceptsMidi() const
 {
    #if JucePlugin_WantsMidiInput
     return true;
@@ -45,7 +45,7 @@ bool MagikarpeggioAudioProcessor::acceptsMidi() const
    #endif
 }
 
-bool MagikarpeggioAudioProcessor::producesMidi() const
+bool MagikarpAudioProcessor::producesMidi() const
 {
    #if JucePlugin_ProducesMidiOutput
     return true;
@@ -54,7 +54,7 @@ bool MagikarpeggioAudioProcessor::producesMidi() const
    #endif
 }
 
-bool MagikarpeggioAudioProcessor::isMidiEffect() const
+bool MagikarpAudioProcessor::isMidiEffect() const
 {
    #if JucePlugin_IsMidiEffect
     return true;
@@ -63,50 +63,50 @@ bool MagikarpeggioAudioProcessor::isMidiEffect() const
    #endif
 }
 
-double MagikarpeggioAudioProcessor::getTailLengthSeconds() const
+double MagikarpAudioProcessor::getTailLengthSeconds() const
 {
     return 0.0;
 }
 
-int MagikarpeggioAudioProcessor::getNumPrograms()
+int MagikarpAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
                 // so this should be at least 1, even if you're not really implementing programs.
 }
 
-int MagikarpeggioAudioProcessor::getCurrentProgram()
+int MagikarpAudioProcessor::getCurrentProgram()
 {
     return 0;
 }
 
-void MagikarpeggioAudioProcessor::setCurrentProgram (int index)
+void MagikarpAudioProcessor::setCurrentProgram (int index)
 {
 }
 
-const String MagikarpeggioAudioProcessor::getProgramName (int index)
+const String MagikarpAudioProcessor::getProgramName (int index)
 {
     return {};
 }
 
-void MagikarpeggioAudioProcessor::changeProgramName (int index, const String& newName)
+void MagikarpAudioProcessor::changeProgramName (int index, const String& newName)
 {
 }
 
 //==============================================================================
-void MagikarpeggioAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void MagikarpAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
 }
 
-void MagikarpeggioAudioProcessor::releaseResources()
+void MagikarpAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool MagikarpeggioAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool MagikarpAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
   #if JucePlugin_IsMidiEffect
     ignoreUnused (layouts);
@@ -129,7 +129,7 @@ bool MagikarpeggioAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 }
 #endif
 
-void MagikarpeggioAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
+void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
@@ -159,25 +159,25 @@ void MagikarpeggioAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 }
 
 //==============================================================================
-bool MagikarpeggioAudioProcessor::hasEditor() const
+bool MagikarpAudioProcessor::hasEditor() const
 {
     return true; // (change this to false if you choose to not supply an editor)
 }
 
-AudioProcessorEditor* MagikarpeggioAudioProcessor::createEditor()
+AudioProcessorEditor* MagikarpAudioProcessor::createEditor()
 {
-    return new MagikarpeggioAudioProcessorEditor (*this);
+    return new MagikarpAudioProcessorEditor (*this);
 }
 
 //==============================================================================
-void MagikarpeggioAudioProcessor::getStateInformation (MemoryBlock& destData)
+void MagikarpAudioProcessor::getStateInformation (MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void MagikarpeggioAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void MagikarpAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -187,5 +187,5 @@ void MagikarpeggioAudioProcessor::setStateInformation (const void* data, int siz
 // This creates new instances of the plugin..
 AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-    return new MagikarpeggioAudioProcessor();
+    return new MagikarpAudioProcessor();
 }

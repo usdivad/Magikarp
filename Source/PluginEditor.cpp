@@ -12,7 +12,7 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-MagikarpeggioAudioProcessorEditor::MagikarpeggioAudioProcessorEditor (MagikarpeggioAudioProcessor& p)
+MagikarpAudioProcessorEditor::MagikarpAudioProcessorEditor (MagikarpAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
     // Make sure that before the constructor has finished, you've set the
@@ -20,12 +20,12 @@ MagikarpeggioAudioProcessorEditor::MagikarpeggioAudioProcessorEditor (Magikarpeg
     setSize (400, 300);
 }
 
-MagikarpeggioAudioProcessorEditor::~MagikarpeggioAudioProcessorEditor()
+MagikarpAudioProcessorEditor::~MagikarpAudioProcessorEditor()
 {
 }
 
 //==============================================================================
-void MagikarpeggioAudioProcessorEditor::paint (Graphics& g)
+void MagikarpAudioProcessorEditor::paint (Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
@@ -35,7 +35,7 @@ void MagikarpeggioAudioProcessorEditor::paint (Graphics& g)
     g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
 }
 
-void MagikarpeggioAudioProcessorEditor::resized()
+void MagikarpAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..

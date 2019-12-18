@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="xLQGwI" name="Magikarpeggio" projectType="audioplug" jucerVersion="5.4.5"
+<JUCERPROJECT id="xLQGwI" name="Magikarp" projectType="audioplug" jucerVersion="5.4.5"
               companyName="David Su" version="0.1.0" companyWebsite="http://usdivad.com/"
-              companyEmail="hello@usdivad.com" pluginCharacteristicsValue="pluginProducesMidiOut,pluginWantsMidiIn"
-              pluginManufacturerCode="DDSU" pluginCode="F1B2" aaxIdentifier="com.usdivad.Magikarpeggio">
-  <MAINGROUP id="NaR48d" name="Magikarpeggio">
+              companyEmail="hello@usdivad.com" pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
+              pluginManufacturerCode="DDSU" pluginCode="F1B2" bundleIdentifier="com.usdivad.Magikarp"
+              aaxIdentifier="com.usdivad.Magikarp">
+  <MAINGROUP id="NaR48d" name="Magikarp">
     <GROUP id="{4510AF0B-FC18-207B-B0DC-715935CCC622}" name="Source">
       <FILE id="z5w1Vv" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

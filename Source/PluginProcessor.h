@@ -15,12 +15,12 @@
 //==============================================================================
 /**
 */
-class MagikarpeggioAudioProcessor  : public AudioProcessor
+class MagikarpAudioProcessor  : public AudioProcessor
 {
 public:
     //==============================================================================
-    MagikarpeggioAudioProcessor();
-    ~MagikarpeggioAudioProcessor();
+    MagikarpAudioProcessor();
+    ~MagikarpAudioProcessor();
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -57,5 +57,5 @@ public:
 
 private:
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpeggioAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpAudioProcessor)
 };

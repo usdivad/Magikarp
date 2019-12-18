@@ -16,11 +16,11 @@
 //==============================================================================
 /**
 */
-class MagikarpeggioAudioProcessorEditor  : public AudioProcessorEditor
+class MagikarpAudioProcessorEditor  : public AudioProcessorEditor
 {
 public:
-    MagikarpeggioAudioProcessorEditor (MagikarpeggioAudioProcessor&);
-    ~MagikarpeggioAudioProcessorEditor();
+    MagikarpAudioProcessorEditor (MagikarpAudioProcessor&);
+    ~MagikarpAudioProcessorEditor();
 
     //==============================================================================
     void paint (Graphics&) override;
@@ -29,7 +29,7 @@ public:
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    MagikarpeggioAudioProcessor& processor;
+    MagikarpAudioProcessor& processor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpeggioAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpAudioProcessorEditor)
 };
