@@ -57,5 +57,15 @@ public:
 
 private:
     //==============================================================================
+    // MIDI
+    std::vector<int> _activeMidiNotes;
+    
+    //==============================================================================
+    // Arp
+    int _arpSubdivisionNumerator = 1;
+    int _arpSubdivisionDenominator = 4;
+    std::vector<int> _arpNoteOnIndices;
+    
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpAudioProcessor)
 };

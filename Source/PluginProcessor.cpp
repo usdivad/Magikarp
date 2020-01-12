@@ -131,6 +131,61 @@ bool MagikarpAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 
 void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    // ================================================================
+    // MIDI
+    
+    if (!midiMessages.isEmpty())
+    {
+        // Get incoming messages
+        MidiBuffer::Iterator midiMessagesIterator = MidiBuffer::Iterator(midiMessages);
+        bool hasNewMidiMessages = true;
+        while (hasNewMidiMessages)
+        {
+            MidiMessage midiMessage;
+            int midiSamplePosition;
+            hasNewMidiMessages = midiMessagesIterator.getNextEvent(midiMessage, midiSamplePosition);
+            
+            if (midiMessage.isNoteOnOrOff())
+            {
+                // TODO: Handle velocity
+                int midiNote = midiMessage.getNoteNumber();
+                
+                auto midiNotesIterator = std::find(_activeMidiNotes.begin(), _activeMidiNotes.end(), midiNote);
+                if (midiNotesIterator != _activeMidiNotes.end())
+                {
+                    // auto midiNoteIdx = std::distance(_activeMidiNotes.begin(), midiNotesIterator);
+                    
+                    if (midiMessage.isNoteOff())
+                    {
+                        _activeMidiNotes.erase(midiNotesIterator);
+                    }
+                }
+                else
+                {
+                    if (midiMessage.isNoteOn())
+                    {
+                        _activeMidiNotes.push_back(midiNote);
+                    }
+                }
+            }
+        }
+    }
+    
+    // Printing active MIDI notes
+    std::stringstream activeMidiNotesStrStream;
+    for (auto it = _activeMidiNotes.begin(); it != _activeMidiNotes.end(); it++)
+    {
+        if (it != _activeMidiNotes.begin())
+            activeMidiNotesStrStream << ", ";
+        activeMidiNotesStrStream << *it;
+    }
+    std::string activeMidiNotesStr = activeMidiNotesStrStream.str();
+    DBG("_activeMidiNotes: " << activeMidiNotesStr);
+    
+    
+    // ================================================================
+    // Audio
+    
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
