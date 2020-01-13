@@ -171,17 +171,6 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         }
     }
     
-    // Printing active MIDI notes
-    std::stringstream activeMidiNotesStrStream;
-    for (auto it = _activeMidiNotes.begin(); it != _activeMidiNotes.end(); it++)
-    {
-        if (it != _activeMidiNotes.begin())
-            activeMidiNotesStrStream << ", ";
-        activeMidiNotesStrStream << *it;
-    }
-    std::string activeMidiNotesStr = activeMidiNotesStrStream.str();
-    DBG("_activeMidiNotes: " << activeMidiNotesStr);
-    
     
     // ================================================================
     // Audio
@@ -236,6 +225,13 @@ void MagikarpAudioProcessor::setStateInformation (const void* data, int sizeInBy
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+//==============================================================================
+
+const std::vector<int>& MagikarpAudioProcessor::getActiveMidiNotes() const
+{
+    return _activeMidiNotes;
 }
 
 //==============================================================================

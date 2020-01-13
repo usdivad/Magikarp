@@ -54,6 +54,9 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    //==============================================================================
+    const std::vector<int>& getActiveMidiNotes() const;
 
 private:
     //==============================================================================

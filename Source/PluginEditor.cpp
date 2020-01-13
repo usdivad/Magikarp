@@ -18,6 +18,10 @@ MagikarpAudioProcessorEditor::MagikarpAudioProcessorEditor (MagikarpAudioProcess
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (400, 300);
+    
+    // ================================================================
+    // Set timer
+    startTimer(20);
 }
 
 MagikarpAudioProcessorEditor::~MagikarpAudioProcessorEditor()
@@ -32,11 +36,29 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
 
     g.setColour (Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), Justification::centred, 1);
+
+    // Display active MIDI notes
+    std::vector<int> activeMidiNotes = processor.getActiveMidiNotes();
+    std::stringstream activeMidiNotesStrStream;
+    activeMidiNotesStrStream << "Active MIDI notes: {";
+    for (auto it = activeMidiNotes.begin(); it != activeMidiNotes.end(); it++)
+    {
+        if (it != activeMidiNotes.begin())
+            activeMidiNotesStrStream << ", ";
+        activeMidiNotesStrStream << *it;
+    }
+    activeMidiNotesStrStream << "}";
+    std::string activeMidiNotesStr = activeMidiNotesStrStream.str();
+    g.drawFittedText(activeMidiNotesStr, getLocalBounds(), Justification::centred, 1);
 }
 
 void MagikarpAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+}
+
+void MagikarpAudioProcessorEditor::timerCallback()
+{
+    repaint();
 }
