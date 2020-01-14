@@ -145,33 +145,42 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
             int midiSamplePosition;
             hasNewMidiMessages = midiMessagesIterator.getNextEvent(midiMessage, midiSamplePosition);
             
+            // Update active MIDI notes
             if (midiMessage.isNoteOnOrOff())
             {
                 // TODO: Handle velocity
                 int midiNote = midiMessage.getNoteNumber();
-                
-                auto midiNotesIterator = std::find(_activeMidiNotes.begin(), _activeMidiNotes.end(), midiNote);
-                if (midiNotesIterator != _activeMidiNotes.end())
-                {
-                    // auto midiNoteIdx = std::distance(_activeMidiNotes.begin(), midiNotesIterator);
-                    
-                    if (midiMessage.isNoteOff())
-                    {
-                        _activeMidiNotes.erase(midiNotesIterator);
-                    }
-                }
-                else
-                {
-                    if (midiMessage.isNoteOn())
-                    {
-                        _activeMidiNotes.push_back(midiNote);
-                    }
-                }
+                handleNewMidiNote(midiNote, midiMessage.isNoteOn(), midiMessage.isNoteOff());
             }
         }
     }
+    // DBG(_activeMidiNotes.size() << " active MIDI notes");
     
+    // ================================================================
+    // Playhead
     
+    AudioPlayHead* playhead = getPlayHead();
+    AudioPlayHead::CurrentPositionInfo positionInfo;
+    playhead->getCurrentPosition(positionInfo);
+    
+    // Update current beat num and MIDI note index for arp
+    // TODO: Have this depend on arp rate
+    int beatNum = (int)positionInfo.ppqPosition;
+    if (beatNum != _currBeatNum)
+    {
+        if (_activeMidiNotes.size() > 0)
+        {
+            _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
+        }
+        else
+        {
+            _currMidiNoteIdx = 0;
+        }
+        
+        _currBeatNum = beatNum;
+    }
+    DBG("_currMidiNoteIdx=" << _currMidiNoteIdx << ", " << "_currBeatNum=" << _currBeatNum);
+
     // ================================================================
     // Audio
     
@@ -229,9 +238,32 @@ void MagikarpAudioProcessor::setStateInformation (const void* data, int sizeInBy
 
 //==============================================================================
 
+// Returns reference to active MIDI notes
 const std::vector<int>& MagikarpAudioProcessor::getActiveMidiNotes() const
 {
     return _activeMidiNotes;
+}
+
+// Add/remove new MIDI notes to active MIDI notes depending on on/off statuses
+void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff)
+{
+    auto midiNotesIterator = std::find(_activeMidiNotes.begin(), _activeMidiNotes.end(), midiNote);
+    if (midiNotesIterator != _activeMidiNotes.end())
+    {
+        // auto midiNoteIdx = std::distance(_activeMidiNotes.begin(), midiNotesIterator);
+        
+        if (isNoteOff)
+        {
+            _activeMidiNotes.erase(midiNotesIterator);
+        }
+    }
+    else
+    {
+        if (isNoteOn)
+        {
+            _activeMidiNotes.push_back(midiNote);
+        }
+    }
 }
 
 //==============================================================================

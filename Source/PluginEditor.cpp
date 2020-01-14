@@ -38,7 +38,7 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
     g.setFont (15.0f);
 
     // Display active MIDI notes
-    std::vector<int> activeMidiNotes = processor.getActiveMidiNotes();
+    const std::vector<int>& activeMidiNotes = processor.getActiveMidiNotes();
     std::stringstream activeMidiNotesStrStream;
     activeMidiNotesStrStream << "Active MIDI notes: {";
     for (auto it = activeMidiNotes.begin(); it != activeMidiNotes.end(); it++)
