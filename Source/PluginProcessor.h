@@ -62,20 +62,27 @@ private:
     //==============================================================================
     // MIDI
     std::vector<int> _activeMidiNotes;
-    int _currMidiNoteIdx = 0;
+    int _currMidiNoteIdx;
     
     //==============================================================================
     // Playhead
-    int _currBeatNum = 0;
+    int _currBeatNum;
+    bool _isPlayheadPlaying;
     
     //==============================================================================
     // Arp
     int _arpSubdivisionNumerator = 1;
     int _arpSubdivisionDenominator = 4;
     std::vector<int> _arpNoteOnIndices;
+    int _arpCurrNoteIdx;
+    
+    //==============================================================================
+    // Audio
+    float _sampleRate;
     
     //==============================================================================
     void handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff);
+    void calculateNoteDuration() const;
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpAudioProcessor)

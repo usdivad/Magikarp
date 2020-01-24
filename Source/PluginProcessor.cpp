@@ -97,6 +97,8 @@ void MagikarpAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+    
+    _sampleRate = static_cast<float>(sampleRate);
 }
 
 void MagikarpAudioProcessor::releaseResources()
@@ -163,14 +165,28 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     AudioPlayHead::CurrentPositionInfo positionInfo;
     playhead->getCurrentPosition(positionInfo);
     
+    _isPlayheadPlaying = positionInfo.isPlaying;
+    
+    // ================================================================
+    // MIDI playback
+    
+    // Clear buffer
+    midiMessages.clear();
+    
     // Update current beat num and MIDI note index for arp
     // TODO: Have this depend on arp rate
-    int beatNum = (int)positionInfo.ppqPosition;
+    int beatNum = static_cast<int>(positionInfo.ppqPosition);
     if (beatNum != _currBeatNum)
     {
+        int prevMidiNoteIdx = _currMidiNoteIdx;
+        
         if (_activeMidiNotes.size() > 0)
         {
             _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
+            
+            // TODO: Handle dangling notes
+            midiMessages.addEvent(MidiMessage::noteOff(1, _activeMidiNotes[prevMidiNoteIdx]), 0);
+            midiMessages.addEvent(MidiMessage::noteOn(1, _activeMidiNotes[_currMidiNoteIdx], static_cast<uint8>(60)), 0);
         }
         else
         {
@@ -264,6 +280,12 @@ void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool
             _activeMidiNotes.push_back(midiNote);
         }
     }
+}
+
+// Calculate note duration based on numerator and denominator
+void MagikarpAudioProcessor::calculateNoteDuration() const
+{
+    
 }
 
 //==============================================================================
