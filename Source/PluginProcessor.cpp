@@ -174,19 +174,24 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     midiMessages.clear();
     
     // Update current beat num and MIDI note index for arp
-    // TODO: Have this depend on arp rate
+    // TODO:
+    // - Have this depend on arp rate
+    // - Handle when playhead is not playing
     int beatNum = static_cast<int>(positionInfo.ppqPosition);
     if (beatNum != _currBeatNum)
     {
+        // Turn off previous note
         int prevMidiNoteIdx = _currMidiNoteIdx;
-        
+        int prevMidiNoteNum = _currMidiNoteNum;
+        midiMessages.addEvent(MidiMessage::noteOff(1, prevMidiNoteNum), 0);
+
+        // Turn on current note
         if (_activeMidiNotes.size() > 0)
         {
             _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
+            _currMidiNoteNum = _activeMidiNotes[_currMidiNoteIdx];
             
-            // TODO: Handle dangling notes
-            midiMessages.addEvent(MidiMessage::noteOff(1, _activeMidiNotes[prevMidiNoteIdx]), 0);
-            midiMessages.addEvent(MidiMessage::noteOn(1, _activeMidiNotes[_currMidiNoteIdx], static_cast<uint8>(60)), 0);
+            midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNum, static_cast<uint8>(60)), 0);
         }
         else
         {

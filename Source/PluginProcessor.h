@@ -63,6 +63,7 @@ private:
     // MIDI
     std::vector<int> _activeMidiNotes;
     int _currMidiNoteIdx;
+    int _currMidiNoteNum;
     
     //==============================================================================
     // Playhead
