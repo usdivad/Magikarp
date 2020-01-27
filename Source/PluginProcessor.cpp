@@ -14,7 +14,8 @@
 //==============================================================================
 MagikarpAudioProcessor::MagikarpAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
+     // : AudioProcessor (BusesProperties()
+        : AudioProcessor(BusesProperties().withInput("Input", AudioChannelSet::mono(), true)
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  AudioChannelSet::stereo(), true)
@@ -165,7 +166,13 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     AudioPlayHead::CurrentPositionInfo positionInfo;
     playhead->getCurrentPosition(positionInfo);
     
+    int prevBeatNum = _currBeatNum;
+    
+    // Update members
+    _currBeatNum = static_cast<int>(positionInfo.ppqPosition);
     _isPlayheadPlaying = positionInfo.isPlaying;
+    _currBpm = static_cast<float>(positionInfo.bpm);
+    
     
     // ================================================================
     // MIDI playback
@@ -174,33 +181,65 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     midiMessages.clear();
     
     // Update current beat num and MIDI note index for arp
+    
+    // Using playhead
     // TODO:
     // - Have this depend on arp rate
-    // - Handle when playhead is not playing
-    int beatNum = static_cast<int>(positionInfo.ppqPosition);
-    if (beatNum != _currBeatNum)
+//     if (_currBeatNum != prevBeatNum)
+//     {
+//         // Turn off previous note
+//         _prevMidiNoteNum = _currMidiNoteNum;
+//         midiMessages.addEvent(MidiMessage::noteOff(1, _prevMidiNoteNum), 0);
+//
+//         // Turn on new note
+//         if (_activeMidiNotes.size() > 0)
+//         {
+//             _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
+//             _currMidiNoteNum = _activeMidiNotes[_currMidiNoteIdx];
+//
+//             midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNum, static_cast<uint8>(60)), 0);
+//         }
+//         else
+//         {
+//             _currMidiNoteIdx = 0;
+//         }
+//     }
+//     DBG("_currMidiNoteIdx=" << _currMidiNoteIdx << ", " << "_currBeatNum=" << _currBeatNum);
+    
+    // Without playhead
+    int noteDuration = calculateNoteDuration();
+    int numSamples = buffer.getNumSamples();
+    
+    if (_currMidiNoteTimeElapsed + numSamples >= noteDuration)
     {
+        // Calculate sample offset
+        int offset = jmax(0, jmin(noteDuration - _currMidiNoteTimeElapsed, numSamples - 1));
+        
         // Turn off previous note
-        int prevMidiNoteIdx = _currMidiNoteIdx;
-        int prevMidiNoteNum = _currMidiNoteNum;
-        midiMessages.addEvent(MidiMessage::noteOff(1, prevMidiNoteNum), 0);
-
-        // Turn on current note
+        _prevMidiNoteNum = _currMidiNoteNum;
+        midiMessages.addEvent(MidiMessage::noteOff(1, _prevMidiNoteNum), offset);
+        
+        // Turn on new note
         if (_activeMidiNotes.size() > 0)
         {
             _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
             _currMidiNoteNum = _activeMidiNotes[_currMidiNoteIdx];
-            
+
             midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNum, static_cast<uint8>(60)), 0);
         }
         else
         {
             _currMidiNoteIdx = 0;
         }
-        
-        _currBeatNum = beatNum;
     }
-    DBG("_currMidiNoteIdx=" << _currMidiNoteIdx << ", " << "_currBeatNum=" << _currBeatNum);
+    _currMidiNoteTimeElapsed = (_currMidiNoteTimeElapsed + numSamples) % noteDuration;
+    // if (_activeMidiNotes.size() < 1)
+    // {
+    //     _currMidiNoteTimeElapsed = 0;
+    // }
+    
+    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples);
+
 
     // ================================================================
     // Audio
@@ -288,9 +327,9 @@ void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool
 }
 
 // Calculate note duration based on numerator and denominator
-void MagikarpAudioProcessor::calculateNoteDuration() const
+int MagikarpAudioProcessor::calculateNoteDuration() const
 {
-    
+    return static_cast<int>((static_cast<float>(_arpSubdivisionNumerator) / (static_cast<float>(_arpSubdivisionDenominator) * 60.0f)) * _currBpm * _sampleRate);
 }
 
 //==============================================================================
