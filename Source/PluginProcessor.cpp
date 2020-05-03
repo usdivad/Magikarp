@@ -100,6 +100,9 @@ void MagikarpAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     // initialisation that you need..
     
     _sampleRate = static_cast<float>(sampleRate);
+    
+    _currMidiNoteNum = -1;
+    _prevMidiNoteNum = -1;
 }
 
 void MagikarpAudioProcessor::releaseResources()
@@ -217,7 +220,10 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         
         // Turn off previous note
         _prevMidiNoteNum = _currMidiNoteNum;
-        midiMessages.addEvent(MidiMessage::noteOff(1, _prevMidiNoteNum), offset);
+        if (_prevMidiNoteNum > 0)
+        {
+            midiMessages.addEvent(MidiMessage::noteOff(1, _prevMidiNoteNum), offset);
+        }
         
         // Turn on new note
         if (_activeMidiNotes.size() > 0)
@@ -329,7 +335,7 @@ void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool
 // Calculate note duration based on numerator and denominator
 int MagikarpAudioProcessor::calculateNoteDuration() const
 {
-    return static_cast<int>((static_cast<float>(_arpSubdivisionNumerator) / (static_cast<float>(_arpSubdivisionDenominator) * 60.0f)) * _currBpm * _sampleRate);
+    return static_cast<int>((static_cast<float>(_arpSubdivisionNumerator) * 4.0f / static_cast<float>(_arpSubdivisionDenominator)) * (60.0f / _currBpm) * _sampleRate);
 }
 
 //==============================================================================
