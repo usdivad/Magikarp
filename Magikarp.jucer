@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="xLQGwI" name="Magikarp" projectType="audioplug" jucerVersion="5.4.5"
+<JUCERPROJECT id="xLQGwI" name="Magikarp" projectType="audioplug" jucerVersion="5.4.7"
               companyName="David Su" version="0.1.0" companyWebsite="http://usdivad.com/"
               companyEmail="hello@usdivad.com" pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginManufacturerCode="DDSU" pluginCode="F1B2" bundleIdentifier="com.usdivad.Magikarp"
