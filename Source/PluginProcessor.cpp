@@ -212,18 +212,30 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     // Without playhead
     int noteDuration = calculateNoteDuration();
     int numSamples = buffer.getNumSamples();
+    int timeElapsed = _currMidiNoteTimeElapsed + numSamples;
     
-    if (_currMidiNoteTimeElapsed + numSamples >= noteDuration)
+    int noteLength = (int) (noteDuration * 0.9f); // To account for legato/staccato eventually
+    
+    if (timeElapsed >= noteLength)
+    {
+        // Turn off current note
+        if (_currMidiNoteNum > 0)
+        {
+            midiMessages.addEvent(MidiMessage::noteOff(1, _currMidiNoteNum), 0);
+        }
+    }
+    
+    if (timeElapsed >= noteDuration)
     {
         // Calculate sample offset
         int offset = jmax(0, jmin(noteDuration - _currMidiNoteTimeElapsed, numSamples - 1));
         
-        // Turn off previous note
+        // Set previous note
         _prevMidiNoteNum = _currMidiNoteNum;
-        if (_prevMidiNoteNum > 0)
-        {
-            midiMessages.addEvent(MidiMessage::noteOff(1, _prevMidiNoteNum), offset);
-        }
+        // if (_prevMidiNoteNum > 0)
+        // {
+        //     midiMessages.addEvent(MidiMessage::noteOff(1, _prevMidiNoteNum), 0);
+        // }
         
         // Turn on new note
         if (_activeMidiNotes.size() > 0)
