@@ -15,7 +15,8 @@
 //==============================================================================
 /**
 */
-class MagikarpAudioProcessor  : public AudioProcessor
+class MagikarpAudioProcessor  : public AudioProcessor,
+                                public ValueTree::Listener
 {
 public:
     //==============================================================================
@@ -55,6 +56,12 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
+    // //==============================================================================
+    // void valueTreePropertyChanged(ValueTree& treeWhosePropertyhasChanged, const Identifier& property) override;
+    
+    //==============================================================================
+    AudioProcessorValueTreeState& getValueTreeState() { return m_ValueTreeState; }
+    
     //==============================================================================
     const std::vector<int>& getActiveMidiNotes() const;
 
@@ -83,8 +90,13 @@ private:
     float _sampleRate;
     
     //==============================================================================
+    // Value tree state
+    AudioProcessorValueTreeState m_ValueTreeState;
+    
+    //==============================================================================
     void handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff);
     int calculateNoteDuration() const;
+    AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpAudioProcessor)

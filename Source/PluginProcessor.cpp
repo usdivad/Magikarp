@@ -22,7 +22,8 @@ MagikarpAudioProcessor::MagikarpAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+          m_ValueTreeState(*this, nullptr, "Parameters", createParameterLayout())
 #endif
 {
 }
@@ -176,6 +177,9 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     _isPlayheadPlaying = positionInfo.isPlaying;
     _currBpm = static_cast<float>(positionInfo.bpm);
     
+    _arpSubdivisionNumerator = m_ValueTreeState.getRawParameterValue("NUMERATOR")->load();
+    _arpSubdivisionDenominator = m_ValueTreeState.getRawParameterValue("DENOMINATOR")->load();
+
     
     // ================================================================
     // MIDI playback
@@ -256,7 +260,7 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     //     _currMidiNoteTimeElapsed = 0;
     // }
     
-    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples);
+    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples << "arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator);
 
 
     // ================================================================
@@ -348,6 +352,17 @@ void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool
 int MagikarpAudioProcessor::calculateNoteDuration() const
 {
     return static_cast<int>((static_cast<float>(_arpSubdivisionNumerator) * 4.0f / static_cast<float>(_arpSubdivisionDenominator)) * (60.0f / _currBpm) * _sampleRate);
+}
+
+// Creates parameter layout for value tree state
+AudioProcessorValueTreeState::ParameterLayout MagikarpAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<RangedAudioParameter>> parameters;
+    
+    parameters.push_back(std::make_unique<AudioParameterInt>("NUMERATOR", "Numerator", 1, 128, 1));
+    parameters.push_back(std::make_unique<AudioParameterInt>("DENOMINATOR", "Denominator", 1, 128, 4));
+    
+    return {parameters.begin(), parameters.end() };
 }
 
 //==============================================================================

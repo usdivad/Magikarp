@@ -31,6 +31,18 @@ public:
     void timerCallback() override;
 
 private:
+    //==============================================================================
+
+    Slider _numeratorSlider;
+    Label _numeratorLabel;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> _numeratorAttachment;
+    
+    Slider _denominatorSlider;
+    Label _denominatorLabel;
+    std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> _denominatorAttachment;
+    
+    //==============================================================================
+    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MagikarpAudioProcessor& processor;
