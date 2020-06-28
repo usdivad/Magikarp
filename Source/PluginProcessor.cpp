@@ -23,7 +23,7 @@ MagikarpAudioProcessor::MagikarpAudioProcessor()
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
                        ),
-          m_ValueTreeState(*this, nullptr, "Parameters", createParameterLayout())
+          _valueTreeState(*this, nullptr, "Parameters", createParameterLayout())
 #endif
 {
 }
@@ -181,8 +181,8 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     _currBpm = static_cast<float>(positionInfo.bpm);
     
     // arp[
-    _arpSubdivisionNumerator = m_ValueTreeState.getRawParameterValue("NUMERATOR")->load();
-    _arpSubdivisionDenominator = m_ValueTreeState.getRawParameterValue("DENOMINATOR")->load();
+    _arpSubdivisionNumerator = _valueTreeState.getRawParameterValue("NUMERATOR")->load();
+    _arpSubdivisionDenominator = _valueTreeState.getRawParameterValue("DENOMINATOR")->load();
 
     // Sequence
     std::vector<bool> rhythm = std::vector<bool>(_arpSubdivisionDenominator); // TODO: Use actual rhythm parameters

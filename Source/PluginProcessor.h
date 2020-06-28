@@ -62,7 +62,7 @@ public:
     // void valueTreePropertyChanged(ValueTree& treeWhosePropertyhasChanged, const Identifier& property) override;
     
     //==============================================================================
-    AudioProcessorValueTreeState& getValueTreeState() { return m_ValueTreeState; }
+    AudioProcessorValueTreeState& getValueTreeState() { return _valueTreeState; }
     
     //==============================================================================
     const std::vector<int>& getActiveMidiNotes() const;
@@ -89,7 +89,7 @@ private:
     
     //==============================================================================
     // Sequencing
-    MagikarpSequence m_Sequence;
+    MagikarpSequence _sequence;
     int _currSequenceIdx;
     
     //==============================================================================
@@ -98,7 +98,7 @@ private:
     
     //==============================================================================
     // Value tree state
-    AudioProcessorValueTreeState m_ValueTreeState;
+    AudioProcessorValueTreeState _valueTreeState;
     
     //==============================================================================
     void handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff);

@@ -9,9 +9,9 @@
 #include "MagikarpSequence.h"
 
 MagikarpSequence::MagikarpSequence() :
-    m_Rhythm({}),
-    m_NotePolyphony(MagikarpNotePolyphony::kMono),
-    m_NotePattern(MagikarpNotePattern::kInputOrder)
+    _rhythm({}),
+    _notePolyphony(MagikarpNotePolyphony::kMono),
+    _notePattern(MagikarpNotePattern::kInputOrder)
 {
     
 }
@@ -23,30 +23,30 @@ MagikarpSequence::~MagikarpSequence()
 
 void MagikarpSequence::setRhythm(const std::vector<bool>& rhythm)
 {
-    m_Rhythm = rhythm;
+    _rhythm = rhythm;
 }
 
 const std::vector<bool>& MagikarpSequence::getRhythm()
 {
-    return m_Rhythm;
+    return _rhythm;
 }
 
 void MagikarpSequence::setNotePolyphony(const MagikarpNotePolyphony polyphony)
 {
-    m_NotePolyphony = polyphony;
+    _notePolyphony = polyphony;
 }
 
 const MagikarpNotePolyphony MagikarpSequence::getNotePolyphony()
 {
-    return m_NotePolyphony;
+    return _notePolyphony;
 }
 
 void MagikarpSequence::setNotePattern(const MagikarpNotePattern pattern)
 {
-    m_NotePattern = pattern;
+    _notePattern = pattern;
 }
 
 const MagikarpNotePattern MagikarpSequence::getNotePattern()
 {
-    return m_NotePattern;
+    return _notePattern;
 }

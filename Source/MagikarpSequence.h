@@ -32,9 +32,9 @@ public:
     
 private:
     
-    std::vector<bool> m_Rhythm;
-    MagikarpNotePolyphony m_NotePolyphony;
-    MagikarpNotePattern m_NotePattern;
+    std::vector<bool> _rhythm;
+    MagikarpNotePolyphony _notePolyphony;
+    MagikarpNotePattern _notePattern;
     
 };
 
