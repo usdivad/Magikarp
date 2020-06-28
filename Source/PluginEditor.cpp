@@ -82,8 +82,8 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
     // Get sequence info
     MagikarpSequence sequence = processor.getSequence();
     std::vector<bool> rhythm = sequence.getRhythm();
-    int currSequenceIdx = (processor.getCurrSequenceIdx() - 1) % rhythm.size();
-    bool isCurrSequenceIdxAnOnset = rhythm.empty() ? false : rhythm[currSequenceIdx];
+    int currSequenceIdx = processor.getCurrSequenceIdx();
+    currSequenceIdx = currSequenceIdx > 0 ? currSequenceIdx - 1 : (int)rhythm.size() - 1;
     
     // Print rhythm
     String r = "";
@@ -91,31 +91,49 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
     {
         r.append(rhythm[i] ? "1" : "0", 1);
     }
-    DBG("Rhythm: " << r);
+    DBG("currSeqIdx=" << currSequenceIdx << ", rhythm: " << r);
     
     // Calculate circle properties
     const float circleRadius = 100;
     const float circleX = getWidth() / 2;
     const float circleY = getHeight() / 2;
-    const float circleThickness = isCurrSequenceIdxAnOnset && processor.isNoteCurrentlyPlaying() ? 10 : 2;
     const float circleArcStep = MathConstants<float>::twoPi / rhythm.size();
     const float circleArcPadding = circleArcStep * 0.2f;
     
     // Draw
-    Path p;
-    // p.startNewSubPath(circleX, circleY - circleRadius);
     for (int i=0; i<rhythm.size(); i++)
     {
+        Path p;
+        
+        bool isOnset = rhythm[i];
+        bool isCurrSequenceIdx = i == currSequenceIdx;
+        
+        Colour arcColour = Colours::grey;
+        float arcThickness = 2;
+        
+        if (isOnset)
+        {
+            arcColour = Colours::lightgrey;
+            arcThickness = 5;
+        }
+        
+        if (isCurrSequenceIdx && processor.isNoteCurrentlyPlaying())
+        {
+            if (isOnset)
+            {
+                arcColour = Colours::mediumseagreen;
+            }
+            arcThickness *= 2;
+        }
+    
+
         float fromRadians = (circleArcStep * i) + circleArcPadding;
         float toRadians = (circleArcStep * (i + 1)) - circleArcPadding;
         p.addCentredArc(circleX, circleY, circleRadius, circleRadius, 0.0f, fromRadians, toRadians, true);
+        
+        g.setColour(arcColour);
+        g.strokePath(p, PathStrokeType(arcThickness));
     }
-    // p.closeSubPath();
-    
-    
-    g.setColour(Colours::white);
-    // g.drawEllipse(circleX, circleY, circleRadius, circleRadius, circleThickness);
-    g.strokePath(p, PathStrokeType(circleThickness));
 }
 
 void MagikarpAudioProcessorEditor::resized()
