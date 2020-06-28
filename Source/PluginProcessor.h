@@ -12,6 +12,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#include "MagikarpSequence.h"
+
 //==============================================================================
 /**
 */
@@ -84,6 +86,11 @@ private:
     // Arp params
     int _arpSubdivisionNumerator = 1;
     int _arpSubdivisionDenominator = 4;
+    
+    //==============================================================================
+    // Sequencing
+    MagikarpSequence m_Sequence;
+    int _currSequenceIdx;
     
     //==============================================================================
     // Audio

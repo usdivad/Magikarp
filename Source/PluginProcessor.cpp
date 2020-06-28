@@ -172,14 +172,30 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     
     int prevBeatNum = _currBeatNum;
     
+    // ================================================================
     // Update members
+    
+    // Playhead/beat
     _currBeatNum = static_cast<int>(positionInfo.ppqPosition);
     _isPlayheadPlaying = positionInfo.isPlaying;
     _currBpm = static_cast<float>(positionInfo.bpm);
     
+    // arp[
     _arpSubdivisionNumerator = m_ValueTreeState.getRawParameterValue("NUMERATOR")->load();
     _arpSubdivisionDenominator = m_ValueTreeState.getRawParameterValue("DENOMINATOR")->load();
 
+    // Sequence
+    std::vector<bool> rhythm = std::vector<bool>(_arpSubdivisionDenominator); // TODO: Use actual rhythm parameters
+    
+    for (int i=0; i<rhythm.size(); i++)
+    {
+        rhythm[i] = (i % 2 == 0 || i% 3 == 0); // TODO: Use actual rhythm parameters
+    }
+    
+    if (_currSequenceIdx >= _arpSubdivisionDenominator)
+    {
+        _currSequenceIdx = _arpSubdivisionDenominator - 1;
+    }
     
     // ================================================================
     // MIDI playback
@@ -218,7 +234,7 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     int numSamples = buffer.getNumSamples();
     int timeElapsed = _currMidiNoteTimeElapsed + numSamples;
     
-    int noteLength = (int) (noteDuration * 0.9f); // To account for legato/staccato eventually
+    int noteLength = (int) (noteDuration * 0.9f); // To account for legato/staccato eventually (TODO)
     
     if (timeElapsed >= noteLength)
     {
@@ -242,17 +258,22 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         // }
         
         // Turn on new note
-        if (_activeMidiNotes.size() > 0)
+        if (rhythm[_currSequenceIdx])
         {
-            _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
-            _currMidiNoteNum = _activeMidiNotes[_currMidiNoteIdx];
+            if (_activeMidiNotes.size() > 0)
+            {
+                _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
+                _currMidiNoteNum = _activeMidiNotes[_currMidiNoteIdx];
 
-            midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNum, static_cast<uint8>(60)), 0);
+                midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNum, static_cast<uint8>(60)), 0);
+            }
+            else
+            {
+                _currMidiNoteIdx = 0;
+                // _currSequenceIdx = 0;
+            }
         }
-        else
-        {
-            _currMidiNoteIdx = 0;
-        }
+        _currSequenceIdx = (_currSequenceIdx + 1) % rhythm.size();
     }
     _currMidiNoteTimeElapsed = (_currMidiNoteTimeElapsed + numSamples) % noteDuration;
     // if (_activeMidiNotes.size() < 1)
@@ -260,7 +281,7 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     //     _currMidiNoteTimeElapsed = 0;
     // }
     
-    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples << "arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator);
+    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples << "arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator << ", seqIdx=" << _currSequenceIdx);
 
 
     // ================================================================
