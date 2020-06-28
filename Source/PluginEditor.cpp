@@ -81,26 +81,41 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
     
     // Get sequence info
     MagikarpSequence sequence = processor.getSequence();
-    int currSequenceIdx = (processor.getCurrSequenceIdx() - 1) % sequence.getRhythm().size();
-    bool isCurrSequenceIdxAnOnset = sequence.getRhythm().empty() ? false : sequence.getRhythm()[currSequenceIdx];
+    std::vector<bool> rhythm = sequence.getRhythm();
+    int currSequenceIdx = (processor.getCurrSequenceIdx() - 1) % rhythm.size();
+    bool isCurrSequenceIdxAnOnset = rhythm.empty() ? false : rhythm[currSequenceIdx];
     
     // Print rhythm
     String r = "";
-    for (int i=0; i<sequence.getRhythm().size(); i++)
+    for (int i=0; i<rhythm.size(); i++)
     {
-        r.append(sequence.getRhythm()[i] ? "1" : "0", 1);
+        r.append(rhythm[i] ? "1" : "0", 1);
     }
-    DBG("rhythm: " << r);
+    DBG("Rhythm: " << r);
     
     // Calculate circle properties
     const float circleRadius = 100;
-    const float circleX = (getWidth() / 5) - (circleRadius / 2);
-    const float circleY = (getHeight() / 2) - (circleRadius / 2);
+    const float circleX = getWidth() / 2;
+    const float circleY = getHeight() / 2;
     const float circleThickness = isCurrSequenceIdxAnOnset && processor.isNoteCurrentlyPlaying() ? 10 : 2;
+    const float circleArcStep = MathConstants<float>::twoPi / rhythm.size();
+    const float circleArcPadding = circleArcStep * 0.2f;
     
     // Draw
+    Path p;
+    // p.startNewSubPath(circleX, circleY - circleRadius);
+    for (int i=0; i<rhythm.size(); i++)
+    {
+        float fromRadians = (circleArcStep * i) + circleArcPadding;
+        float toRadians = (circleArcStep * (i + 1)) - circleArcPadding;
+        p.addCentredArc(circleX, circleY, circleRadius, circleRadius, 0.0f, fromRadians, toRadians, true);
+    }
+    // p.closeSubPath();
+    
+    
     g.setColour(Colours::white);
-    g.drawEllipse(circleX, circleY, circleRadius, circleRadius, circleThickness);
+    // g.drawEllipse(circleX, circleY, circleRadius, circleRadius, circleThickness);
+    g.strokePath(p, PathStrokeType(circleThickness));
 }
 
 void MagikarpAudioProcessorEditor::resized()
