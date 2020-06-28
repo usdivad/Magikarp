@@ -192,6 +192,8 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         rhythm[i] = (i % 2 == 0 || i% 3 == 0); // TODO: Use actual rhythm parameters
     }
     
+    _sequence.setRhythm(rhythm);
+    
     if (_currSequenceIdx >= _arpSubdivisionDenominator)
     {
         _currSequenceIdx = _arpSubdivisionDenominator - 1;
@@ -234,7 +236,7 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     int numSamples = buffer.getNumSamples();
     int timeElapsed = _currMidiNoteTimeElapsed + numSamples;
     
-    int noteLength = (int) (noteDuration * 0.9f); // To account for legato/staccato eventually (TODO)
+    int noteLength = (int) (noteDuration * _arpNoteLengthScalar); // To account for legato/staccato eventually (TODO)
     
     if (timeElapsed >= noteLength)
     {
@@ -281,7 +283,7 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     //     _currMidiNoteTimeElapsed = 0;
     // }
     
-    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples << "arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator << ", seqIdx=" << _currSequenceIdx);
+    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples << ", arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator << ", seqIdx=" << _currSequenceIdx);
 
 
     // ================================================================
@@ -339,13 +341,16 @@ void MagikarpAudioProcessor::setStateInformation (const void* data, int sizeInBy
     // whose contents will have been created by the getStateInformation() call.
 }
 
-//==============================================================================
+//==============================================================================s
 
-// Returns reference to active MIDI notes
-const std::vector<int>& MagikarpAudioProcessor::getActiveMidiNotes() const
+bool MagikarpAudioProcessor::isNoteCurrentlyPlaying()
 {
-    return _activeMidiNotes;
+    return _currMidiNoteTimeElapsed < calculateNoteDuration() * _arpNoteLengthScalar && !_activeMidiNotes.empty();
 }
+
+
+//==============================================================================s
+
 
 // Add/remove new MIDI notes to active MIDI notes depending on on/off statuses
 void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff)

@@ -62,10 +62,15 @@ public:
     // void valueTreePropertyChanged(ValueTree& treeWhosePropertyhasChanged, const Identifier& property) override;
     
     //==============================================================================
-    AudioProcessorValueTreeState& getValueTreeState() { return _valueTreeState; }
+    bool isNoteCurrentlyPlaying();
     
     //==============================================================================
-    const std::vector<int>& getActiveMidiNotes() const;
+    // Getters for various members
+    AudioProcessorValueTreeState& getValueTreeState() { return _valueTreeState; }
+    const std::vector<int>& getActiveMidiNotes() const { return _activeMidiNotes; }
+    const int getCurrMidiNoteIdx() const { return _currMidiNoteIdx; }
+    const MagikarpSequence& getSequence() const { return _sequence; }
+    const int getCurrSequenceIdx() const { return _currSequenceIdx; }
 
 private:
     //==============================================================================
@@ -86,6 +91,7 @@ private:
     // Arp params
     int _arpSubdivisionNumerator = 1;
     int _arpSubdivisionDenominator = 4;
+    float _arpNoteLengthScalar = 0.9f;
     
     //==============================================================================
     // Sequencing

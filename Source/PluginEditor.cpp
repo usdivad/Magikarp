@@ -11,6 +11,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#include "MagikarpSequence.h"
+
 //==============================================================================
 MagikarpAudioProcessorEditor::MagikarpAudioProcessorEditor (MagikarpAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
@@ -73,6 +75,32 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
     activeMidiNotesStrStream << "}";
     std::string activeMidiNotesStr = activeMidiNotesStrStream.str();
     g.drawFittedText(activeMidiNotesStr, getLocalBounds(), Justification::centredBottom, 1);
+    
+    // ================
+    // Visualizing sequences and notes
+    
+    // Get sequence info
+    MagikarpSequence sequence = processor.getSequence();
+    int currSequenceIdx = (processor.getCurrSequenceIdx() - 1) % sequence.getRhythm().size();
+    bool isCurrSequenceIdxAnOnset = sequence.getRhythm().empty() ? false : sequence.getRhythm()[currSequenceIdx];
+    
+    // Print rhythm
+    String r = "";
+    for (int i=0; i<sequence.getRhythm().size(); i++)
+    {
+        r.append(sequence.getRhythm()[i] ? "1" : "0", 1);
+    }
+    DBG("rhythm: " << r);
+    
+    // Calculate circle properties
+    const float circleRadius = 100;
+    const float circleX = (getWidth() / 5) - (circleRadius / 2);
+    const float circleY = (getHeight() / 2) - (circleRadius / 2);
+    const float circleThickness = isCurrSequenceIdxAnOnset && processor.isNoteCurrentlyPlaying() ? 10 : 2;
+    
+    // Draw
+    g.setColour(Colours::white);
+    g.drawEllipse(circleX, circleY, circleRadius, circleRadius, circleThickness);
 }
 
 void MagikarpAudioProcessorEditor::resized()

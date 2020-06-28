@@ -21,6 +21,8 @@ public:
     MagikarpSequence();
     ~MagikarpSequence();
     
+    // bool isRhythmOnsetAtIndex(const int i);
+    
     void setRhythm(const std::vector<bool>& rhythm);
     const std::vector<bool>& getRhythm();
     
