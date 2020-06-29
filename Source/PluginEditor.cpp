@@ -17,25 +17,28 @@
 MagikarpAudioProcessorEditor::MagikarpAudioProcessorEditor (MagikarpAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
+    const int sliderTextWidth = 40;
+    const int sliderTextHeight = 20;
+    
     // Numerator
     _numeratorSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    _numeratorSlider.setTextBoxStyle(Slider::TextBoxRight, false, 45, 25);
+    _numeratorSlider.setTextBoxStyle(Slider::TextBoxBelow, false, sliderTextWidth, sliderTextHeight);
     addAndMakeVisible(_numeratorSlider);
     
-    _numeratorLabel.setText("Numerator", NotificationType::dontSendNotification);
-    _numeratorLabel.setJustificationType(Justification::centredTop);
-    _numeratorLabel.attachToComponent(&_numeratorSlider, false);
+    // _numeratorLabel.setText("Numerator", NotificationType::dontSendNotification);
+    // _numeratorLabel.setJustificationType(Justification::centredTop);
+    // _numeratorLabel.attachToComponent(&_numeratorSlider, false);
     
     _numeratorAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.getValueTreeState(), "NUMERATOR", _numeratorSlider);
     
     // Denominator
     _denominatorSlider.setSliderStyle(Slider::SliderStyle::RotaryVerticalDrag);
-    _denominatorSlider.setTextBoxStyle(Slider::TextBoxRight, false, 45, 25);
+    _denominatorSlider.setTextBoxStyle(Slider::TextBoxBelow, false, sliderTextWidth, sliderTextHeight);
     addAndMakeVisible(_denominatorSlider);
     
-    _denominatorLabel.setText("Denominator", NotificationType::dontSendNotification);
-    _denominatorLabel.setJustificationType(Justification::centredTop);
-    _denominatorLabel.attachToComponent(&_denominatorSlider, false);
+    // _denominatorLabel.setText("Denominator", NotificationType::dontSendNotification);
+    // _denominatorLabel.setJustificationType(Justification::centredTop);
+    // _denominatorLabel.attachToComponent(&_denominatorSlider, false);
     
     _denominatorAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.getValueTreeState(), "DENOMINATOR", _denominatorSlider);
     
@@ -141,8 +144,8 @@ void MagikarpAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-    int w = 100;
-    int h = 100;
+    int w = 75;
+    int h = w;
     int centerX = (getWidth() * 0.5f) - (w * 0.5f);
     int centerY = (getHeight() * 0.5f) - (h * 0.5f);
     
