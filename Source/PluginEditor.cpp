@@ -82,60 +82,66 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
     // ================
     // Visualizing sequences and notes
     
-    // Get sequence info
-    MagikarpSequence sequence = processor.getSequence();
-    std::vector<bool> rhythm = sequence.getRhythm();
-    int currSequenceIdx = processor.getCurrSequenceIdx();
-    currSequenceIdx = currSequenceIdx > 0 ? currSequenceIdx - 1 : (int)rhythm.size() - 1;
+    const std::vector<MagikarpSequence>& sequences = processor.getSequences();
+    const std::vector<int>& currSequenceIndices = processor.getCurrSequenceIndices();
     
-    // Print rhythm
-    String r = "";
-    for (int i=0; i<rhythm.size(); i++)
+    for (int i=0; i<sequences.size(); i++)
     {
-        r.append(rhythm[i] ? "1" : "0", 1);
-    }
-    DBG("currSeqIdx=" << currSequenceIdx << ", rhythm: " << r);
-    
-    // Calculate circle properties
-    const float circleRadius = 100;
-    const float circleX = getWidth() / 2;
-    const float circleY = getHeight() / 2;
-    const float circleArcStep = MathConstants<float>::twoPi / rhythm.size();
-    const float circleArcPadding = circleArcStep * 0.2f;
-    
-    // Draw
-    for (int i=0; i<rhythm.size(); i++)
-    {
-        Path p;
+        // Get sequence info
+        const MagikarpSequence& sequence = sequences[0];
+        const std::vector<bool>& rhythm = sequence.getRhythm();
+        int currSequenceIdx = currSequenceIndices[0];
+        currSequenceIdx = currSequenceIdx > 0 ? currSequenceIdx - 1 : (int)rhythm.size() - 1;
         
-        bool isOnset = rhythm[i];
-        bool isCurrSequenceIdx = i == currSequenceIdx;
-        
-        Colour arcColour = Colours::grey;
-        float arcThickness = 2;
-        
-        if (isOnset)
+        // Print rhythm
+        String r = "";
+        for (int i=0; i<rhythm.size(); i++)
         {
-            arcColour = Colours::lightgrey;
-            arcThickness = 5;
+            r.append(rhythm[i] ? "1" : "0", 1);
         }
+        DBG("" << i << ": currSeqIdx=" << currSequenceIdx << ", rhythm: " << r);
         
-        if (isCurrSequenceIdx && processor.isNoteCurrentlyPlaying())
+        // Calculate circle properties
+        const float circleRadius = 25 * (i + 1);
+        const float circleX = getWidth() / 2;
+        const float circleY = getHeight() / 2;
+        const float circleArcStep = MathConstants<float>::twoPi / rhythm.size();
+        const float circleArcPadding = circleArcStep * 0.2f;
+        
+        // Draw
+        for (int i=0; i<rhythm.size(); i++)
         {
+            Path p;
+            
+            bool isOnset = rhythm[i];
+            bool isCurrSequenceIdx = i == currSequenceIdx;
+            
+            Colour arcColour = Colours::grey;
+            float arcThickness = 2;
+            
             if (isOnset)
             {
-                arcColour = Colours::mediumseagreen;
+                arcColour = Colours::lightgrey;
+                arcThickness = 5;
             }
-            arcThickness *= 2;
-        }
-    
-
-        float fromRadians = (circleArcStep * i) + circleArcPadding;
-        float toRadians = (circleArcStep * (i + 1)) - circleArcPadding;
-        p.addCentredArc(circleX, circleY, circleRadius, circleRadius, 0.0f, fromRadians, toRadians, true);
+            
+            if (isCurrSequenceIdx && processor.isNoteCurrentlyPlaying())
+            {
+                if (isOnset)
+                {
+                    arcColour = Colours::mediumseagreen;
+                }
+                arcThickness *= 2;
+            }
         
-        g.setColour(arcColour);
-        g.strokePath(p, PathStrokeType(arcThickness));
+
+            float fromRadians = (circleArcStep * i) + circleArcPadding;
+            float toRadians = (circleArcStep * (i + 1)) - circleArcPadding;
+            p.addCentredArc(circleX, circleY, circleRadius, circleRadius, 0.0f, fromRadians, toRadians, true);
+            
+            g.setColour(arcColour);
+            g.strokePath(p, PathStrokeType(arcThickness));
+        }
     }
 }
 

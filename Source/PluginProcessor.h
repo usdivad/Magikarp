@@ -69,8 +69,8 @@ public:
     AudioProcessorValueTreeState& getValueTreeState() { return _valueTreeState; }
     const std::vector<int>& getActiveMidiNotes() const { return _activeMidiNotes; }
     const int getCurrMidiNoteIdx() const { return _currMidiNoteIdx; }
-    const MagikarpSequence& getSequence() const { return _sequence; }
-    const int getCurrSequenceIdx() const { return _currSequenceIdx; }
+    const std::vector<MagikarpSequence>& getSequences() const { return _sequences; }
+    const std::vector<int>& getCurrSequenceIndices() const { return _currSequenceIndices; }
 
 private:
     //==============================================================================
@@ -95,8 +95,9 @@ private:
     
     //==============================================================================
     // Sequencing
-    MagikarpSequence _sequence;
-    int _currSequenceIdx;
+    std::vector<MagikarpSequence> _sequences;
+    std::vector<int> _currSequenceIndices;
+    int _numSequences = 5;
     
     //==============================================================================
     // Audio

@@ -26,7 +26,7 @@ void MagikarpSequence::setRhythm(const std::vector<bool>& rhythm)
     _rhythm = rhythm;
 }
 
-const std::vector<bool>& MagikarpSequence::getRhythm()
+const std::vector<bool>& MagikarpSequence::getRhythm() const
 {
     return _rhythm;
 }
@@ -36,7 +36,7 @@ void MagikarpSequence::setNotePolyphony(const MagikarpNotePolyphony polyphony)
     _notePolyphony = polyphony;
 }
 
-const MagikarpNotePolyphony MagikarpSequence::getNotePolyphony()
+const MagikarpNotePolyphony MagikarpSequence::getNotePolyphony() const
 {
     return _notePolyphony;
 }
@@ -46,7 +46,7 @@ void MagikarpSequence::setNotePattern(const MagikarpNotePattern pattern)
     _notePattern = pattern;
 }
 
-const MagikarpNotePattern MagikarpSequence::getNotePattern()
+const MagikarpNotePattern MagikarpSequence::getNotePattern() const
 {
     return _notePattern;
 }

@@ -10,6 +10,7 @@
 #define MagikarpSequence_h
 
 #include <vector>
+#include "../JuceLibraryCode/JuceHeader.h"
 
 #include "MagikarpNoteModes.h"
 
@@ -24,13 +25,13 @@ public:
     // bool isRhythmOnsetAtIndex(const int i);
     
     void setRhythm(const std::vector<bool>& rhythm);
-    const std::vector<bool>& getRhythm();
+    const std::vector<bool>& getRhythm() const;
     
     void setNotePolyphony(const MagikarpNotePolyphony polyphony);
-    const MagikarpNotePolyphony getNotePolyphony();
+    const MagikarpNotePolyphony getNotePolyphony() const;
     
     void setNotePattern(const MagikarpNotePattern pattern);
-    const MagikarpNotePattern getNotePattern();
+    const MagikarpNotePattern getNotePattern() const;
     
 private:
     

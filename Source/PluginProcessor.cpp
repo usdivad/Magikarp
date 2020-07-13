@@ -26,6 +26,8 @@ MagikarpAudioProcessor::MagikarpAudioProcessor()
           _valueTreeState(*this, nullptr, "Parameters", createParameterLayout())
 #endif
 {
+    _sequences = std::vector<MagikarpSequence>(_numSequences);
+    _currSequenceIndices = std::vector<int>(_numSequences, 0);
 }
 
 MagikarpAudioProcessor::~MagikarpAudioProcessor()
@@ -185,18 +187,27 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     _arpSubdivisionDenominator = _valueTreeState.getRawParameterValue("DENOMINATOR")->load();
 
     // Sequence
-    std::vector<bool> rhythm = std::vector<bool>(_arpSubdivisionDenominator); // TODO: Use actual rhythm parameters
-    
-    for (int i=0; i<rhythm.size(); i++)
+    for (int seqIdx=0; seqIdx<_numSequences; seqIdx++)
     {
-        rhythm[i] = (i % 2 == 0 || i% 3 == 0); // TODO: Use actual rhythm parameters
-    }
-    
-    _sequence.setRhythm(rhythm);
-    
-    if (_currSequenceIdx >= _arpSubdivisionDenominator)
-    {
-        _currSequenceIdx = _arpSubdivisionDenominator - 1;
+        std::vector<bool> rhythm = std::vector<bool>(_arpSubdivisionDenominator); // TODO: Use actual rhythm parameters
+        
+        for (int rhythmIdx=0; rhythmIdx<rhythm.size(); rhythmIdx++)
+        {
+            // TODO: Use actual rhythm parameters
+            rhythm[rhythmIdx] = (rhythmIdx % (seqIdx+2) == 0 || rhythmIdx % (seqIdx+3) == 0);
+            // rhythm[rhythmIdx] = rhythmIdx % (seqIdx+1) == 0;
+            // rhythm[rhythmIdx] = (rhythmIdx % (seqIdx+2) == 0 && rhythmIdx % (seqIdx+3) == 0);
+        }
+        
+        // MagikarpSequence sequence = MagikarpSequence();
+        // sequence.setRhythm(rhythm);
+        
+        _sequences[seqIdx].setRhythm(rhythm);
+        
+        if (_currSequenceIndices[seqIdx] >= _arpSubdivisionDenominator)
+        {
+            _currSequenceIndices[seqIdx] = _arpSubdivisionDenominator - 1;
+        }
     }
     
     // ================================================================
@@ -260,22 +271,29 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         // }
         
         // Turn on new note
-        if (rhythm[_currSequenceIdx])
+        for (int i=0; i<_sequences.size(); i++)
         {
-            if (_activeMidiNotes.size() > 0)
+            int currSequenceIdx = _currSequenceIndices[i];
+            std::vector<bool> rhythm = _sequences[i].getRhythm();
+            
+            if (rhythm[currSequenceIdx])
             {
-                _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
-                _currMidiNoteNum = _activeMidiNotes[_currMidiNoteIdx];
+                if (_activeMidiNotes.size() > 0)
+                {
+                    _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
+                    _currMidiNoteNum = _activeMidiNotes[_currMidiNoteIdx];
 
-                midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNum, static_cast<uint8>(60)), 0);
+                    midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNum, static_cast<uint8>(60)), 0);
+                }
+                else
+                {
+                    _currMidiNoteIdx = 0;
+                    // _currSequenceIdx = 0;
+                }
             }
-            else
-            {
-                _currMidiNoteIdx = 0;
-                // _currSequenceIdx = 0;
-            }
+            currSequenceIdx = (currSequenceIdx + 1) % rhythm.size();
+            _currSequenceIndices[i] = currSequenceIdx;
         }
-        _currSequenceIdx = (_currSequenceIdx + 1) % rhythm.size();
     }
     _currMidiNoteTimeElapsed = (_currMidiNoteTimeElapsed + numSamples) % noteDuration;
     // if (_activeMidiNotes.size() < 1)
@@ -283,7 +301,14 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     //     _currMidiNoteTimeElapsed = 0;
     // }
     
-    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples << ", arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator << ", seqIdx=" << _currSequenceIdx);
+    std::string currSequenceIndicesStr = "";
+    for (auto i : _currSequenceIndices)
+    {
+        currSequenceIndicesStr += std::to_string(i);
+        currSequenceIndicesStr += ",";
+    }
+    
+    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples << ", arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator << ", seqIdx=" << currSequenceIndicesStr);
 
 
     // ================================================================
