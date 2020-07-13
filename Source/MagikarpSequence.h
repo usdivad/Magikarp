@@ -38,6 +38,7 @@ private:
     MagikarpNotePolyphony _notePolyphony;
     MagikarpNotePattern _notePattern;
     
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpSequence)
 };
 
 #endif /* MagikarpSequence_h */
