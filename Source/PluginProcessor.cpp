@@ -377,8 +377,6 @@ bool MagikarpAudioProcessor::isNoteCurrentlyPlaying()
 
 //==============================================================================s
 
-
-// Add/remove new MIDI notes to active MIDI notes depending on on/off statuses
 void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff)
 {
     auto midiNotesIterator = std::find(_activeMidiNotes.begin(), _activeMidiNotes.end(), midiNote);
@@ -400,13 +398,11 @@ void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool
     }
 }
 
-// Calculate note duration based on numerator and denominator
 int MagikarpAudioProcessor::calculateNoteDuration() const
 {
     return static_cast<int>((static_cast<float>(_arpSubdivisionNumerator) * 4.0f / static_cast<float>(_arpSubdivisionDenominator)) * (60.0f / _currBpm) * _sampleRate);
 }
 
-// Creates parameter layout for value tree state
 AudioProcessorValueTreeState::ParameterLayout MagikarpAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<RangedAudioParameter>> parameters;

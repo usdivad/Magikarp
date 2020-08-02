@@ -65,7 +65,7 @@ public:
     bool isNoteCurrentlyPlaying();
     
     //==============================================================================
-    // Getters for various members
+    // Getters (+ some setters) for various members
     AudioProcessorValueTreeState& getValueTreeState() { return _valueTreeState; }
     const std::vector<int>& getActiveMidiNotes() const { return _activeMidiNotes; }
     const int getCurrMidiNoteIdx() const { return _currMidiNoteIdx; }
@@ -75,6 +75,17 @@ public:
     void setSequencePolyphony(MagikarpNotePolyphony polyphony) { _sequencePolyphony = polyphony; }
 
 private:
+    //==============================================================================
+    
+    // Add/remove new MIDI notes to active MIDI notes depending on on/off statuses
+    void handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff);
+    
+    // Calculate note duration based on numerator and denominator
+    int calculateNoteDuration() const;
+    
+    // Create parameter layout for value tree state
+    AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    
     //==============================================================================
     // MIDI
     std::vector<int> _activeMidiNotes;
@@ -109,11 +120,6 @@ private:
     //==============================================================================
     // Value tree state
     AudioProcessorValueTreeState _valueTreeState;
-    
-    //==============================================================================
-    void handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff);
-    int calculateNoteDuration() const;
-    AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MagikarpAudioProcessor)
