@@ -28,6 +28,11 @@ MagikarpAudioProcessor::MagikarpAudioProcessor()
 {
     _sequences = std::vector<MagikarpSequence>(_numSequences);
     _currSequenceIndices = std::vector<int>(_numSequences, 0);
+    
+    _currMidiNoteIdxs = std::vector<int>(_numSequences, 0);
+    _currMidiNoteNums = std::vector<int>(_numSequences, -1);
+    _prevMidiNoteNums = std::vector<int>(_numSequences, -1);
+    _currMidiNoteTimesElapsed = std::vector<int>(_numSequences, 0);
 }
 
 MagikarpAudioProcessor::~MagikarpAudioProcessor()
@@ -104,8 +109,8 @@ void MagikarpAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     
     _sampleRate = static_cast<float>(sampleRate);
     
-    _currMidiNoteNum = -1;
-    _prevMidiNoteNum = -1;
+    // _currMidiNoteNum = -1;
+    // _prevMidiNoteNum = -1;
 }
 
 void MagikarpAudioProcessor::releaseResources()
@@ -244,63 +249,91 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
 //     DBG("_currMidiNoteIdx=" << _currMidiNoteIdx << ", " << "_currBeatNum=" << _currBeatNum);
     
     // Without playhead
-    int noteDuration = calculateNoteDuration();
-    int numSamples = buffer.getNumSamples();
-    int timeElapsed = _currMidiNoteTimeElapsed + numSamples;
+    const int noteDuration = calculateNoteDuration();
+    const int numSamples = buffer.getNumSamples();
+    const int numSequences = _sequencePolyphony == kNotePolyphonyPoly ? _sequences.size() : jmin(1, (int)_sequences.size());
     
-    int noteLength = (int) (noteDuration * _arpNoteLengthScalar); // To account for legato/staccato eventually (TODO)
-    
-    if (timeElapsed >= noteLength)
+    for (int i=0; i<numSequences; i++)
     {
-        // Turn off current note
-        if (_currMidiNoteNum > 0)
+        int timeElapsed = _currMidiNoteTimesElapsed[i] + numSamples;
+        
+        int noteLength = (int) (noteDuration * _arpNoteLengthScalar); // To account for legato/staccato eventually (TODO)
+        
+        if (timeElapsed >= noteLength)
         {
-            midiMessages.addEvent(MidiMessage::noteOff(1, _currMidiNoteNum), 0);
+            // Turn off current note
+            if (_currMidiNoteNums[i] > 0)
+            {
+                midiMessages.addEvent(MidiMessage::noteOff(1, _currMidiNoteNums[i]), 0);
+            }
         }
-    }
-    
-    if (timeElapsed >= noteDuration)
-    {
-        // Calculate sample offset
-        int offset = jmax(0, jmin(noteDuration - _currMidiNoteTimeElapsed, numSamples - 1));
         
-        // Set previous note
-        _prevMidiNoteNum = _currMidiNoteNum;
-        // if (_prevMidiNoteNum > 0)
-        // {
-        //     midiMessages.addEvent(MidiMessage::noteOff(1, _prevMidiNoteNum), 0);
-        // }
-        
-        // Turn on new note
-        for (int i=0; i<_sequences.size(); i++)
+        if (timeElapsed >= noteDuration)
         {
+            // Calculate sample offset
+            int offset = jmax(0, jmin(noteDuration - _currMidiNoteTimesElapsed[i], numSamples - 1));
+            
+            // Set previous note
+            _prevMidiNoteNums[i] = _currMidiNoteNums[i];
+            // if (_prevMidiNoteNum > 0)
+            // {
+            //     midiMessages.addEvent(MidiMessage::noteOff(1, _prevMidiNoteNum), 0);
+            // }
+            
+            // Update new note
             int currSequenceIdx = _currSequenceIndices[i];
             std::vector<bool> rhythm = _sequences[i].getRhythm();
-            
+            DBG("currSeqIdx: " << currSequenceIdx);
+        
             if (rhythm[currSequenceIdx])
             {
                 if (_activeMidiNotes.size() > 0)
                 {
-                    _currMidiNoteIdx = (_currMidiNoteIdx + 1) % _activeMidiNotes.size();
-                    _currMidiNoteNum = _activeMidiNotes[_currMidiNoteIdx];
-
-                    midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNum, static_cast<uint8>(60)), 0);
+                    if (_sequencePolyphony == kNotePolyphonyMono)
+                    {
+                        _currMidiNoteIdxs[i] = (_currMidiNoteIdxs[i] + 1) % _activeMidiNotes.size();
+                        _currMidiNoteNums[i] = _activeMidiNotes[_currMidiNoteIdxs[i]];
+                    }
+                    else
+                    {
+                        // TODO: Handle when there are more active MIDI notes than sequences
+                        if (i < _activeMidiNotes.size())
+                        {
+                            _currMidiNoteIdxs[i] = i;
+                            _currMidiNoteNums[i] = _activeMidiNotes[i];
+                        }
+                        else
+                        {
+                            _currMidiNoteIdxs[i] = 0;
+                            _currMidiNoteNums[i] = -1;
+                        }
+                    }
+                    
+                    // Turn on new note
+                    if (_currMidiNoteNums[i] > 0)
+                    {
+                        midiMessages.addEvent(MidiMessage::noteOn(1, _currMidiNoteNums[i], static_cast<uint8>(60)), 0);
+                    }
                 }
                 else
                 {
-                    _currMidiNoteIdx = 0;
+                    _currMidiNoteIdxs[i] = 0;
                     // _currSequenceIdx = 0;
                 }
             }
             currSequenceIdx = (currSequenceIdx + 1) % rhythm.size();
             _currSequenceIndices[i] = currSequenceIdx;
         }
+        
+        _currMidiNoteTimesElapsed[i] = (_currMidiNoteTimesElapsed[i] + numSamples) % noteDuration;
+        
+        // if (_activeMidiNotes.size() < 1)
+        // {
+        //     _currMidiNoteTimeElapsed = 0;
+        // }
     }
-    _currMidiNoteTimeElapsed = (_currMidiNoteTimeElapsed + numSamples) % noteDuration;
-    // if (_activeMidiNotes.size() < 1)
-    // {
-    //     _currMidiNoteTimeElapsed = 0;
-    // }
+    
+    // Debug printing
     
     std::string currSequenceIndicesStr = "";
     for (auto i : _currSequenceIndices)
@@ -309,7 +342,21 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
         currSequenceIndicesStr += ",";
     }
     
-    DBG("noteIdx=" << _currMidiNoteIdx << ", noteDuration=" << noteDuration << ", timeElapsed=" << _currMidiNoteTimeElapsed << ", numSamples=" << numSamples << ", arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator << ", seqIdx=" << currSequenceIndicesStr);
+    std::string currMidiNoteIdxsStr = "";
+    for (auto i : _currMidiNoteIdxs)
+    {
+        currMidiNoteIdxsStr += std::to_string(i);
+        currMidiNoteIdxsStr += ",";
+    }
+    
+    std::string currMidiNoteNumsStr = "";
+    for (auto n : _currMidiNoteNums)
+    {
+        currMidiNoteNumsStr += std::to_string(n);
+        currMidiNoteNumsStr += ",";
+    }
+    
+    DBG("noteIdxs=" << currMidiNoteIdxsStr << ", noteNums=" << currMidiNoteNumsStr << ", noteDuration=" << noteDuration << ", timeElapsed[0]=" << _currMidiNoteTimesElapsed[0] << ", numSamples=" << numSamples << ", arpSubdivision=" << _arpSubdivisionNumerator << "/" << _arpSubdivisionDenominator << ", seqIdx=" << currSequenceIndicesStr);
 
 
     // ================================================================
@@ -369,9 +416,9 @@ void MagikarpAudioProcessor::setStateInformation (const void* data, int sizeInBy
 
 //==============================================================================s
 
-bool MagikarpAudioProcessor::isNoteCurrentlyPlaying()
+bool MagikarpAudioProcessor::isNoteCurrentlyPlaying(int seqIdx)
 {
-    return _currMidiNoteTimeElapsed < calculateNoteDuration() * _arpNoteLengthScalar && !_activeMidiNotes.empty();
+    return _currMidiNoteTimesElapsed[seqIdx] < calculateNoteDuration() * _arpNoteLengthScalar && !_activeMidiNotes.empty();
 }
 
 
@@ -409,7 +456,7 @@ AudioProcessorValueTreeState::ParameterLayout MagikarpAudioProcessor::createPara
     
     parameters.push_back(std::make_unique<AudioParameterInt>("NUMERATOR", "Numerator", 1, 128, 1));
     parameters.push_back(std::make_unique<AudioParameterInt>("DENOMINATOR", "Denominator", 1, 128, 4));
-    parameters.push_back(std::make_unique<AudioParameterInt>("POLYPHONY", "Polyphony", kNotePolyphonyNone, kNotePolyphonyPoly, kNotePolyphonyPoly));
+    parameters.push_back(std::make_unique<AudioParameterInt>("POLYPHONY", "Polyphony", kNotePolyphonyMono, kNotePolyphonyPoly, kNotePolyphonyPoly));
 
     
     return {parameters.begin(), parameters.end() };

@@ -62,13 +62,13 @@ public:
     // void valueTreePropertyChanged(ValueTree& treeWhosePropertyhasChanged, const Identifier& property) override;
     
     //==============================================================================
-    bool isNoteCurrentlyPlaying();
+    bool isNoteCurrentlyPlaying(int seqIdx);
     
     //==============================================================================
     // Getters (+ some setters) for various members
     AudioProcessorValueTreeState& getValueTreeState() { return _valueTreeState; }
     const std::vector<int>& getActiveMidiNotes() const { return _activeMidiNotes; }
-    const int getCurrMidiNoteIdx() const { return _currMidiNoteIdx; }
+    const int getCurrMidiNoteIdx(int seqIdx) const { return _currMidiNoteIdxs[seqIdx]; }
     const std::vector<MagikarpSequence>& getSequences() const { return _sequences; }
     const std::vector<int>& getCurrSequenceIndices() const { return _currSequenceIndices; }
     const MagikarpNotePolyphony getSequencePolyphony() const { return _sequencePolyphony; }
@@ -89,10 +89,10 @@ private:
     //==============================================================================
     // MIDI
     std::vector<int> _activeMidiNotes;
-    int _currMidiNoteIdx;
-    int _currMidiNoteNum;
-    int _prevMidiNoteNum;
-    int _currMidiNoteTimeElapsed; // In samples
+    std::vector<int> _currMidiNoteIdxs;
+    std::vector<int> _currMidiNoteNums;
+    std::vector<int> _prevMidiNoteNums;
+    std::vector<int> _currMidiNoteTimesElapsed; // In samples
     
     //==============================================================================
     // Playhead
