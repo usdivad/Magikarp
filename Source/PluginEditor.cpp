@@ -42,6 +42,13 @@ MagikarpAudioProcessorEditor::MagikarpAudioProcessorEditor (MagikarpAudioProcess
     
     _denominatorAttachment = std::make_unique<AudioProcessorValueTreeState::SliderAttachment>(processor.getValueTreeState(), "DENOMINATOR", _denominatorSlider);
     
+    // Sequence polyphony
+    _sequencePolyphonyComboBox.addItem("mono", kNotePolyphonyMono);
+    _sequencePolyphonyComboBox.addItem("poly", kNotePolyphonyPoly);
+    _sequencePolyphonyComboBox.setSelectedId(kNotePolyphonyPoly);
+    _sequencePolyphonyAttachment = std::make_unique<AudioProcessorValueTreeState::ComboBoxAttachment>(processor.getValueTreeState(), "POLYPHONY", _sequencePolyphonyComboBox);
+    addAndMakeVisible(_sequencePolyphonyComboBox);
+
     // ================================================================
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -84,8 +91,10 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
     
     const std::vector<MagikarpSequence>& sequences = processor.getSequences();
     const std::vector<int>& currSequenceIndices = processor.getCurrSequenceIndices();
+    const MagikarpNotePolyphony sequencePolyphony = processor.getSequencePolyphony();
+    const int numSequencesToDraw = sequencePolyphony == kNotePolyphonyPoly ? sequences.size() : 1;
     
-    for (int si=0; si<sequences.size(); si++)
+    for (int si=0; si<numSequencesToDraw; si++)
     {
         // Get sequence info
         const MagikarpSequence& sequence = sequences[si];
@@ -99,14 +108,14 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
         {
             r.append(rhythm[ri] ? "1" : "0", 1);
         }
-        DBG("" << si << ": currSeqIdx=" << currSequenceIdx << ", rhythm: " << r);
+        DBG("" << si << ": currSeqIdx=" << currSequenceIdx << ", rhythm: " << r << ", " << "poly: " << sequencePolyphony);
         
         // Calculate circle properties
-        const float circleRadius = 25 * (si + 1);
+        const float circleRadius = sequencePolyphony == kNotePolyphonyPoly ? 25 * (si + 1) : 100;
         const float circleX = getWidth() / 2;
         const float circleY = getHeight() / 2;
         const float circleArcStep = MathConstants<float>::twoPi / rhythm.size();
-        const float circleArcPadding = circleArcStep * (0.1f - (0.05f * si / rhythm.size()));
+        const float circleArcPadding = sequencePolyphony == kNotePolyphonyMono ? circleArcStep * (0.1f - (0.05f * si / rhythm.size())) : circleArcStep * 0.2f;
         
         // Draw
         for (int i=0; i<rhythm.size(); i++)
@@ -150,16 +159,20 @@ void MagikarpAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-    int w = 75;
-    int h = w;
-    int centerX = (getWidth() * 0.5f) - (w * 0.5f);
-    int centerY = (getHeight() * 0.5f) - (h * 0.5f);
+    const int w = 75;
+    const int h = w;
+    const int centerX = (getWidth() * 0.5f) - (w * 0.5f);
+    const int centerY = (getHeight() * 0.5f) - (h * 0.5f);
     
-    int numY = centerY - (h * 0.5f);
-    int denY = centerY + (h * 0.5f);
+    const int numY = centerY - (h * 0.5f);
+    const int denY = centerY + (h * 0.5f);
+    
+    const int polyX = getWidth() * 0.75f;
+    const int polyY = centerY;
 
     _numeratorSlider.setBounds(centerX, numY, w, h);
     _denominatorSlider.setBounds(centerX, denY, w, h);
+    _sequencePolyphonyComboBox.setBounds(polyX, polyY, w, h*0.5f);
 }
 
 void MagikarpAudioProcessorEditor::timerCallback()

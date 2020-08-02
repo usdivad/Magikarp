@@ -182,9 +182,10 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     _isPlayheadPlaying = positionInfo.isPlaying;
     _currBpm = static_cast<float>(positionInfo.bpm);
     
-    // arp[
+    // Parameters from value tree state
     _arpSubdivisionNumerator = _valueTreeState.getRawParameterValue("NUMERATOR")->load();
     _arpSubdivisionDenominator = _valueTreeState.getRawParameterValue("DENOMINATOR")->load();
+    _sequencePolyphony = (MagikarpNotePolyphony)_valueTreeState.getRawParameterValue("POLYPHONY")->load();
 
     // Sequence
     for (int seqIdx=0; seqIdx<_numSequences; seqIdx++)
@@ -412,6 +413,8 @@ AudioProcessorValueTreeState::ParameterLayout MagikarpAudioProcessor::createPara
     
     parameters.push_back(std::make_unique<AudioParameterInt>("NUMERATOR", "Numerator", 1, 128, 1));
     parameters.push_back(std::make_unique<AudioParameterInt>("DENOMINATOR", "Denominator", 1, 128, 4));
+    parameters.push_back(std::make_unique<AudioParameterInt>("POLYPHONY", "Polyphony", kNotePolyphonyNone, kNotePolyphonyPoly, kNotePolyphonyPoly));
+
     
     return {parameters.begin(), parameters.end() };
 }

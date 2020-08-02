@@ -71,6 +71,8 @@ public:
     const int getCurrMidiNoteIdx() const { return _currMidiNoteIdx; }
     const std::vector<MagikarpSequence>& getSequences() const { return _sequences; }
     const std::vector<int>& getCurrSequenceIndices() const { return _currSequenceIndices; }
+    const MagikarpNotePolyphony getSequencePolyphony() const { return _sequencePolyphony; }
+    void setSequencePolyphony(MagikarpNotePolyphony polyphony) { _sequencePolyphony = polyphony; }
 
 private:
     //==============================================================================
@@ -98,6 +100,7 @@ private:
     std::vector<MagikarpSequence> _sequences;
     std::vector<int> _currSequenceIndices;
     int _numSequences = 5;
+    MagikarpNotePolyphony _sequencePolyphony = kNotePolyphonyPoly;
     
     //==============================================================================
     // Audio

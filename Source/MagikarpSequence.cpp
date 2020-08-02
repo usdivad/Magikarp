@@ -10,8 +10,8 @@
 
 MagikarpSequence::MagikarpSequence() :
     _rhythm({}),
-    _notePolyphony(MagikarpNotePolyphony::kMono),
-    _notePattern(MagikarpNotePattern::kInputOrder)
+    _notePolyphony(MagikarpNotePolyphony::kNotePolyphonyMono),
+    _notePattern(MagikarpNotePattern::kNotePatternInputOrder)
 {
     
 }

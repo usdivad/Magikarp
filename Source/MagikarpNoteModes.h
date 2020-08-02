@@ -11,17 +11,20 @@
 
 enum MagikarpNotePolyphony
 {
-    kMono=0,
-    kPoly
+    kNotePolyphonyNone=0,
+    kNotePolyphonyMono,
+    kNotePolyphonyPoly
 };
 
 enum MagikarpNotePattern
 {
-    kInputOrder=0,
-    kInputOrderReversed,
-    kAscending,
-    kDescending,
-    kRandom
+    kNotePatternNone=0,
+    kNotePatternInputOrder,
+    kNotePatternInputOrderReversed,
+    kNotePatternAscending,
+    kNotePatternDescending,
+    kNotePatternRandom
+    // kTotalNumNotePatterns
 };
 
 #endif /* MagikarpNoteModes_h */

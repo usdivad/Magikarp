@@ -41,6 +41,11 @@ private:
     Label _denominatorLabel;
     std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment> _denominatorAttachment;
     
+    // TODO: Try using radio buttons instead?
+    ComboBox _sequencePolyphonyComboBox;
+    Label _sequencePolyphonyLabel;
+    std::unique_ptr<AudioProcessorValueTreeState::ComboBoxAttachment> _sequencePolyphonyAttachment;
+    
     //==============================================================================
     
     // This reference is provided as a quick way for your editor to
