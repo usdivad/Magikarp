@@ -134,7 +134,7 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
                 arcThickness = 5;
             }
             
-            if (isCurrSequenceIdx && processor.isNoteCurrentlyPlaying(i))
+            if (isCurrSequenceIdx && processor.isNoteCurrentlyPlaying(i) && si < activeMidiNotes.size())
             {
                 if (isOnset)
                 {
