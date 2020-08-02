@@ -85,28 +85,28 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
     const std::vector<MagikarpSequence>& sequences = processor.getSequences();
     const std::vector<int>& currSequenceIndices = processor.getCurrSequenceIndices();
     
-    for (int i=0; i<sequences.size(); i++)
+    for (int si=0; si<sequences.size(); si++)
     {
         // Get sequence info
-        const MagikarpSequence& sequence = sequences[0];
+        const MagikarpSequence& sequence = sequences[si];
         const std::vector<bool>& rhythm = sequence.getRhythm();
-        int currSequenceIdx = currSequenceIndices[0];
+        int currSequenceIdx = currSequenceIndices[si];
         currSequenceIdx = currSequenceIdx > 0 ? currSequenceIdx - 1 : (int)rhythm.size() - 1;
         
         // Print rhythm
         String r = "";
-        for (int i=0; i<rhythm.size(); i++)
+        for (int ri=0; ri<rhythm.size(); ri++)
         {
-            r.append(rhythm[i] ? "1" : "0", 1);
+            r.append(rhythm[ri] ? "1" : "0", 1);
         }
-        DBG("" << i << ": currSeqIdx=" << currSequenceIdx << ", rhythm: " << r);
+        DBG("" << si << ": currSeqIdx=" << currSequenceIdx << ", rhythm: " << r);
         
         // Calculate circle properties
-        const float circleRadius = 25 * (i + 1);
+        const float circleRadius = 25 * (si + 1);
         const float circleX = getWidth() / 2;
         const float circleY = getHeight() / 2;
         const float circleArcStep = MathConstants<float>::twoPi / rhythm.size();
-        const float circleArcPadding = circleArcStep * 0.2f;
+        const float circleArcPadding = circleArcStep * (0.1f - (0.05f * si / rhythm.size()));
         
         // Draw
         for (int i=0; i<rhythm.size(); i++)
