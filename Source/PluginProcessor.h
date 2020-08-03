@@ -76,6 +76,7 @@ public:
 
 private:
     //==============================================================================
+    // Various helper methods
     
     // Add/remove new MIDI notes to active MIDI notes depending on on/off statuses
     void handleNewMidiNote(int midiNote, bool isNoteOn, bool isNoteOff);

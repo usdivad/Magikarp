@@ -22,7 +22,13 @@ public:
     MagikarpSequence();
     ~MagikarpSequence();
     
-    // bool isRhythmOnsetAtIndex(const int i);
+    //==============================================================================
+    // Euclidean rhythms :)
+    
+    static std::vector<bool> generateEuclideanRhythm(int pulses, int steps);
+    
+    //==============================================================================
+    // Getters and setters
     
     void setRhythm(const std::vector<bool>& rhythm);
     const std::vector<bool>& getRhythm() const;
@@ -33,7 +39,16 @@ public:
     void setNotePattern(const MagikarpNotePattern pattern);
     const MagikarpNotePattern getNotePattern() const;
     
+    // bool isRhythmOnsetAtIndex(const int i);
+    
 private:
+    
+    //==============================================================================
+    // Bjorklund's algorithm helpers
+    static void buildRhythm(int level, std::vector<bool>& rhythm, std::vector<int>& count, std::vector<int>& remainder);
+    
+    
+    //==============================================================================
     
     std::vector<bool> _rhythm;
     MagikarpNotePolyphony _notePolyphony;

@@ -195,15 +195,21 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     // Sequence
     for (int seqIdx=0; seqIdx<_numSequences; seqIdx++)
     {
-        std::vector<bool> rhythm = std::vector<bool>(_arpSubdivisionDenominator); // TODO: Use actual rhythm parameters
+        // Old dummy rhythm construction
+        // std::vector<bool> rhythm = std::vector<bool>(_arpSubdivisionDenominator); // TODO: Use actual rhythm parameters
+        //
+        // for (int rhythmIdx=0; rhythmIdx<rhythm.size(); rhythmIdx++)
+        // {
+        //     // TODO: Use actual rhythm parameters
+        //     rhythm[rhythmIdx] = (rhythmIdx % (seqIdx+2) == 0 || rhythmIdx % (seqIdx+3) == 0);
+        //     // rhythm[rhythmIdx] = rhythmIdx % (seqIdx+1) == 0;
+        //     // rhythm[rhythmIdx] = (rhythmIdx % (seqIdx+2) == 0 && rhythmIdx % (seqIdx+3) == 0);
+        // }
         
-        for (int rhythmIdx=0; rhythmIdx<rhythm.size(); rhythmIdx++)
-        {
-            // TODO: Use actual rhythm parameters
-            rhythm[rhythmIdx] = (rhythmIdx % (seqIdx+2) == 0 || rhythmIdx % (seqIdx+3) == 0);
-            // rhythm[rhythmIdx] = rhythmIdx % (seqIdx+1) == 0;
-            // rhythm[rhythmIdx] = (rhythmIdx % (seqIdx+2) == 0 && rhythmIdx % (seqIdx+3) == 0);
-        }
+        // Dummy Euclidean rhythm
+        // TODO: Have separate pulse parameters for each sequence
+        std::vector<bool> rhythm = MagikarpSequence::generateEuclideanRhythm(_arpSubdivisionNumerator + seqIdx, _arpSubdivisionDenominator);
+
         
         // MagikarpSequence sequence = MagikarpSequence();
         // sequence.setRhythm(rhythm);
@@ -334,6 +340,7 @@ void MagikarpAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffe
     }
     
     // Debug printing
+    // MagikarpSequence::generateEuclideanRhythm(_arpSubdivisionNumerator, _arpSubdivisionDenominator);
     
     std::string currSequenceIndicesStr = "";
     for (auto i : _currSequenceIndices)
