@@ -454,15 +454,16 @@ void MagikarpAudioProcessor::handleNewMidiNote(int midiNote, bool isNoteOn, bool
 
 int MagikarpAudioProcessor::calculateNoteDuration() const
 {
-    return static_cast<int>((static_cast<float>(_arpSubdivisionNumerator) * 4.0f / static_cast<float>(_arpSubdivisionDenominator)) * (60.0f / _currBpm) * _sampleRate);
+    // return static_cast<int>((static_cast<float>(_arpSubdivisionNumerator) * 4.0f / static_cast<float>(_arpSubdivisionDenominator)) * (60.0f / _currBpm) * _sampleRate); // Using numerator
+    return static_cast<int>((static_cast<float>(1) * 4.0f / static_cast<float>(_arpSubdivisionDenominator)) * (60.0f / _currBpm) * _sampleRate); // Using fixed quarter note basis
 }
 
 AudioProcessorValueTreeState::ParameterLayout MagikarpAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<RangedAudioParameter>> parameters;
     
-    parameters.push_back(std::make_unique<AudioParameterInt>("NUMERATOR", "Numerator", 1, 128, 1));
-    parameters.push_back(std::make_unique<AudioParameterInt>("DENOMINATOR", "Denominator", 1, 128, 4));
+    parameters.push_back(std::make_unique<AudioParameterInt>("NUMERATOR", "Numerator", 1, 128, 5));
+    parameters.push_back(std::make_unique<AudioParameterInt>("DENOMINATOR", "Denominator", 1, 128, 13));
     parameters.push_back(std::make_unique<AudioParameterInt>("POLYPHONY", "Polyphony", kNotePolyphonyMono, kNotePolyphonyPoly, kNotePolyphonyPoly));
 
     
