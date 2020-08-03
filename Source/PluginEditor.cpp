@@ -52,7 +52,7 @@ MagikarpAudioProcessorEditor::MagikarpAudioProcessorEditor (MagikarpAudioProcess
     // ================================================================
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (800, 360);
     
     // ================================================================
     // Set timer
@@ -112,8 +112,8 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
         
         // Calculate circle properties
         const float circleRadius = sequencePolyphony == kNotePolyphonyPoly ? 25 * (si + 1) : 100;
-        const float circleX = getWidth() / 2;
-        const float circleY = getHeight() / 2;
+        const float circleX = getWidth() * 0.5f;
+        const float circleY = getHeight() * 0.5f;
         const float circleArcStep = MathConstants<float>::twoPi / rhythm.size();
         const float circleArcPadding = sequencePolyphony == kNotePolyphonyMono ? circleArcStep * (0.1f - (0.05f * si / rhythm.size())) : circleArcStep * 0.2f;
         
@@ -161,17 +161,17 @@ void MagikarpAudioProcessorEditor::resized()
     
     const int w = 75;
     const int h = w;
-    const int centerX = (getWidth() * 0.5f) - (w * 0.5f);
-    const int centerY = (getHeight() * 0.5f) - (h * 0.5f);
+    const int numDenX = (getWidth() * 0.75f) - (w * 0.5f);
+    const int numDenY = (getHeight() * 0.5f) - (h * 0.5f);
     
-    const int numY = centerY - (h * 0.5f);
-    const int denY = centerY + (h * 0.5f);
+    const int numY = numDenY - (h * 0.5f);
+    const int denY = numDenY + (h * 0.5f);
     
-    const int polyX = getWidth() * 0.75f;
-    const int polyY = centerY;
+    const int polyX = (getWidth() * 0.25f) - (w * 0.5f);
+    const int polyY = numDenY;
 
-    _numeratorSlider.setBounds(centerX, numY, w, h);
-    _denominatorSlider.setBounds(centerX, denY, w, h);
+    _numeratorSlider.setBounds(numDenX, numY, w, h);
+    _denominatorSlider.setBounds(numDenX, denY, w, h);
     _sequencePolyphonyComboBox.setBounds(polyX, polyY, w, h*0.5f);
 }
 
