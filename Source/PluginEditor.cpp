@@ -128,12 +128,14 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
             Colour arcColour = Colours::grey;
             float arcThickness = 2;
             
+            // Rhythm onsets/pulses
             if (isOnset)
             {
                 arcColour = Colours::lightgrey;
                 arcThickness = 5;
             }
             
+            // Onsets that are being played
             if (isCurrSequenceIdx && processor.isNoteCurrentlyPlaying(i) && si < activeMidiNotes.size())
             {
                 if (isOnset)
@@ -141,6 +143,12 @@ void MagikarpAudioProcessorEditor::paint (Graphics& g)
                     arcColour = Colours::mediumseagreen;
                 }
                 arcThickness *= 2;
+            }
+            
+            // First steo
+            if (i == 0)
+            {
+                arcColour = arcColour.withMultipliedBrightness(1.5f);
             }
         
 
